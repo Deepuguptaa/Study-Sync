@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}SyncSphere | Background Remover{% endblock %}
+
+{% block content %}
+<div class="text-center mb-12">
+    <h1 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">AI Background Remover</h1>
+    <p class="text-xl text-gray-400 max-w-2xl mx-auto">Instantly remove the background from any image with incredible precision using AI.</p>
+</div>
+
+<div class="max-w-2xl mx-auto">
+    <div class="glass-panel rounded-2xl p-8 hover-scale transition-all duration-300">
+        <div class="flex items-center justify-center mb-8">
+            <div class="w-16 h-16 rounded-full bg-pink-900/40 flex items-center justify-center relative overflow-hidden">
+                <i class="fas fa-magic text-3xl text-pink-400 z-10"></i>
+                <div class="absolute inset-0 bg-pink-500/20 animate-pulse"></div>
+            </div>
+        </div>
+        
+        <form id="bgForm" class="space-y-6">
+            <div class="border-2 border-dashed border-gray-600 rounded-xl p-10 text-center hover:border-pink-500 transition-colors cursor-pointer relative overflow-hidden group">
+                <input type="file" id="imageFile" name="file" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" required>
+                <i class="fas fa-image text-5xl text-gray-500 mb-4 group-hover:text-pink-400 transition-colors"></i>
+                <p class="text-lg text-gray-300">Drag & drop image to remove background</p>
+                <p id="fileName" class="text-md text-pink-400 mt-4 font-semibold"></p>
+            </div>
+            
+            <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-pink-600 to-rose-600 text-white font-bold text-lg shadow-lg hover:shadow-pink-500/30 tool-btn flex justify-center items-center">
+                <span>Remove Background</span>
+                <div class="loader ml-3 hidden" id="loader"></div>
+            </button>
+            
+            <p id="statusMsg" class="text-center mt-4 hidden font-medium"></p>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('imageFile').addEventListener('change', function(e) {
+        document.getElementById('fileName').textContent = e.target.files.length > 0 ? e.target.files[0].name : '';
+    });
+
+    document.getElementById('bgForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const loader = document.getElementById('loader');
+        const status = document.getElementById('statusMsg');
+        
+        loader.classList.remove('hidden');
+        status.classList.add('hidden');
+        status.className = 'text-center mt-4';
+        
+        try {
+            const formData = new FormData(form);
+            const response = await fetch('/api/remove_bg', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (response.ok) {
+                const blob = await response.blob();
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = "no-bg.png";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                
+                status.textContent = "Success! Image downloaded.";
+                status.classList.add('text-green-400', 'block');
+                status.classList.remove('hidden');
+                
+                form.reset();
+                document.getElementById('fileName').textContent = '';
+            } else {
+                const error = await response.json();
+                status.textContent = error.error || "An error occurred.";
+                status.classList.add('text-red-400', 'block');
+                status.classList.remove('hidden');
+            }
+        } catch (error) {
+            status.textContent = "Network error occurred.";
+            status.classList.add('text-red-400', 'block');
+            status.classList.remove('hidden');
+        } finally {
+            loader.classList.add('hidden');
+        }
+    });
+</script>
+{% endblock %}

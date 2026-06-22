@@ -1,0 +1,118 @@
+p{% extends "base.html" %}
+
+{% block title %}SyncSphere | Image Converter{% endblock %}
+
+{% block content %}
+<div class="text-center mb-12">
+    <h1 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">Image Format Converter</h1>
+    <p class="text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-medium transition-colors duration-300">Convert your images between popular formats instantly without quality loss.</p>
+</div>
+
+<div class="max-w-2xl mx-auto">
+    <div class="glass-panel rounded-2xl p-8 hover-scale transition-all duration-300">
+        <div class="flex items-center justify-center mb-8">
+            <div class="w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center border border-indigo-200 dark:border-indigo-800/50 shadow-sm transition-colors duration-300">
+                <i class="fas fa-exchange-alt text-3xl text-indigo-600 dark:text-indigo-400"></i>
+            </div>
+        </div>
+        
+        <form id="convertForm" class="space-y-6">
+            <div class="border-2 border-dashed border-slate-300 dark:border-gray-700 rounded-xl p-10 text-center hover:border-indigo-500 dark:hover:border-indigo-400 transition-colors cursor-pointer relative overflow-hidden group bg-slate-50 dark:bg-gray-800/50">
+                <input type="file" id="imageFile" name="file" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" required>
+                <i class="fas fa-cloud-upload-alt text-5xl text-slate-400 dark:text-gray-500 mb-4 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors"></i>
+                <p class="text-lg text-slate-600 dark:text-white font-semibold transition-colors duration-300">Drag & drop your image here</p>
+                <p class="text-sm text-slate-400 dark:text-gray-400 mt-2 font-medium transition-colors duration-300">Supports PNG, JPG, JPEG, WEBP, GIF</p>
+                <p id="fileName" class="text-md text-indigo-600 dark:text-indigo-400 mt-4 font-bold"></p>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 dark:text-gray-300 mb-2 transition-colors duration-300">Target Format</label>
+                <div class="relative">
+                    <select name="format" class="w-full bg-white dark:bg-gray-800 border border-slate-300 dark:border-gray-600 rounded-xl px-4 py-3 text-slate-800 dark:text-white font-medium appearance-none focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900/50 transition-all shadow-sm" required>
+                        <option value="" disabled selected>Select format...</option>
+                        <option value="png">PNG</option>
+                        <option value="jpg">JPG</option>
+                        <option value="webp">WEBP</option>
+                        <option value="gif">GIF</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500 dark:text-gray-400">
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-lg shadow-lg hover:shadow-indigo-500/30 tool-btn flex justify-center items-center">
+                <span>Convert Image</span>
+                <div class="loader ml-3 hidden" id="loader"></div>
+            </button>
+            
+            <p id="statusMsg" class="text-center mt-4 hidden font-medium"></p>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('imageFile').addEventListener('change', function(e) {
+        document.getElementById('fileName').textContent = e.target.files.length > 0 ? e.target.files[0].name : '';
+    });
+
+    document.getElementById('convertForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const loader = document.getElementById('loader');
+        const status = document.getElementById('statusMsg');
+        
+        loader.classList.remove('hidden');
+        status.classList.add('hidden');
+        status.className = 'text-center mt-4';
+        
+        try {
+            const formData = new FormData(form);
+            const response = await fetch('/api/convert_image', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (response.ok) {
+                const blob = await response.blob();
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                
+                // Get filename from header
+                const contentDisposition = response.headers.get('Content-Disposition');
+                let filename = 'converted-image.png';
+                if (contentDisposition) {
+                    const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+                    if (filenameMatch && filenameMatch.length === 2) filename = filenameMatch[1];
+                }
+                
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                
+                status.textContent = "Success! Image downloaded.";
+                status.classList.add('text-green-400', 'block');
+                status.classList.remove('hidden');
+                
+                form.reset();
+                document.getElementById('fileName').textContent = '';
+            } else {
+                const error = await response.json();
+                status.textContent = error.error || "An error occurred.";
+                status.classList.add('text-red-400', 'block');
+                status.classList.remove('hidden');
+            }
+        } catch (error) {
+            status.textContent = "Network error occurred.";
+            status.classList.add('text-red-400', 'block');
+            status.classList.remove('hidden');
+        } finally {
+            loader.classList.add('hidden');
+        }
+    });
+</script>
+{% endblock %}

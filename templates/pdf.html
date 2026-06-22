@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+
+{% block title %}SyncSphere | PDF Tools{% endblock %}
+
+{% block content %}
+<div class="text-center mb-12">
+    <h1 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">Advanced PDF Tools</h1>
+    <p class="text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-medium transition-colors duration-300">Merge, split, and convert your documents securely and instantly.</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Merge PDF Section -->
+    <div class="glass-panel rounded-2xl p-8 hover-scale transition-all duration-300">
+        <div class="flex items-center mb-6">
+            <div class="w-12 h-12 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mr-4 border border-indigo-200 dark:border-indigo-800/50 transition-colors duration-300">
+                <i class="fas fa-layer-group text-2xl text-indigo-600 dark:text-indigo-400"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-white transition-colors duration-300">Merge PDFs</h2>
+        </div>
+        <p class="text-slate-500 dark:text-slate-400 mb-6 text-sm font-medium transition-colors duration-300">Combine multiple PDF files into a single document.</p>
+        
+        <form id="mergeForm" class="space-y-4">
+            <div class="border-2 border-dashed border-slate-300 dark:border-gray-700 rounded-xl p-6 text-center hover:border-indigo-500 dark:hover:border-indigo-400 transition-colors cursor-pointer relative overflow-hidden bg-slate-50 dark:bg-gray-800/50">
+                <input type="file" id="mergeFiles" name="files" multiple accept=".pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                <i class="fas fa-cloud-upload-alt text-3xl text-slate-400 dark:text-gray-500 mb-2"></i>
+                <p class="text-sm text-slate-500 dark:text-gray-400 font-medium transition-colors duration-300">Drag & drop or click to select PDFs</p>
+                <p id="mergeFileCount" class="text-xs text-indigo-600 dark:text-indigo-400 mt-2 font-bold"></p>
+            </div>
+            <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold shadow-lg hover:shadow-indigo-500/25 tool-btn flex justify-center items-center">
+                <span>Merge Files</span>
+                <div class="loader ml-3 hidden" id="mergeLoader"></div>
+            </button>
+            <p id="mergeStatus" class="text-sm text-center mt-2 hidden"></p>
+        </form>
+    </div>
+
+    <!-- Split PDF Section -->
+    <div class="glass-panel rounded-2xl p-8 hover-scale transition-all duration-300">
+        <div class="flex items-center mb-6">
+            <div class="w-12 h-12 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mr-4 border border-purple-200 dark:border-purple-800/50 transition-colors duration-300">
+                <i class="fas fa-cut text-2xl text-purple-600 dark:text-purple-400"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-white transition-colors duration-300">Split PDF</h2>
+        </div>
+        <p class="text-slate-500 dark:text-slate-400 mb-6 text-sm font-medium transition-colors duration-300">Extract a specific range of pages from a PDF.</p>
+        
+        <form id="splitForm" class="space-y-4">
+            <div class="border-2 border-dashed border-slate-300 dark:border-gray-700 rounded-xl p-6 text-center hover:border-purple-500 dark:hover:border-purple-400 transition-colors cursor-pointer relative overflow-hidden bg-slate-50 dark:bg-gray-800/50">
+                <input type="file" id="splitFile" name="file" accept=".pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                <i class="fas fa-file-pdf text-3xl text-slate-400 dark:text-gray-500 mb-2"></i>
+                <p class="text-sm text-slate-500 dark:text-gray-400 font-medium transition-colors duration-300">Select PDF to split</p>
+                <p id="splitFileName" class="text-xs text-purple-600 dark:text-purple-400 mt-2 font-bold"></p>
+            </div>
+            
+            <div class="flex space-x-4">
+                <div class="flex-1">
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-gray-400 mb-1">Start Page</label>
+                    <input type="number" name="start" min="1" class="w-full bg-white dark:bg-gray-800 border border-slate-300 dark:border-gray-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-200 dark:focus:ring-purple-900/50 transition-colors duration-300" placeholder="e.g. 1" required>
+                </div>
+                <div class="flex-1">
+                    <label class="block text-xs font-semibold text-slate-600 dark:text-gray-400 mb-1">End Page</label>
+                    <input type="number" name="end" min="1" class="w-full bg-white dark:bg-gray-800 border border-slate-300 dark:border-gray-600 rounded-lg px-3 py-2 text-slate-800 dark:text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-200 dark:focus:ring-purple-900/50 transition-colors duration-300" placeholder="e.g. 5" required>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold shadow-lg hover:shadow-purple-500/25 tool-btn flex justify-center items-center">
+                <span>Split PDF</span>
+                <div class="loader ml-3 hidden" id="splitLoader"></div>
+            </button>
+            <p id="splitStatus" class="text-sm text-center mt-2 hidden"></p>
+        </form>
+    </div>
+
+    <!-- Images to PDF Section -->
+    <div class="glass-panel rounded-2xl p-8 hover-scale transition-all duration-300">
+        <div class="flex items-center mb-6">
+            <div class="w-12 h-12 rounded-lg bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center mr-4 border border-pink-200 dark:border-pink-800/50 transition-colors duration-300">
+                <i class="fas fa-images text-2xl text-pink-600 dark:text-pink-400"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-white transition-colors duration-300">Images to PDF</h2>
+        </div>
+        <p class="text-slate-500 dark:text-slate-400 mb-6 text-sm font-medium transition-colors duration-300">Convert multiple images into a single PDF document.</p>
+        
+        <form id="imgToPdfForm" class="space-y-4">
+            <div class="border-2 border-dashed border-slate-300 dark:border-gray-700 rounded-xl p-6 text-center hover:border-pink-500 dark:hover:border-pink-400 transition-colors cursor-pointer relative overflow-hidden bg-slate-50 dark:bg-gray-800/50">
+                <input type="file" id="imgToPdfFiles" name="files" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                <i class="fas fa-photo-video text-3xl text-slate-400 dark:text-gray-500 mb-2"></i>
+                <p class="text-sm text-slate-500 dark:text-gray-400 font-medium transition-colors duration-300">Select images (JPG, PNG)</p>
+                <p id="imgToPdfCount" class="text-xs text-pink-600 dark:text-pink-400 mt-2 font-bold"></p>
+            </div>
+            <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-pink-600 to-rose-600 text-white font-semibold shadow-lg hover:shadow-pink-500/25 tool-btn flex justify-center items-center">
+                <span>Convert to PDF</span>
+                <div class="loader ml-3 hidden" id="imgPdfLoader"></div>
+            </button>
+            <p id="imgPdfStatus" class="text-sm text-center mt-2 hidden"></p>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // File input listeners to show counts
+    document.getElementById('mergeFiles').addEventListener('change', function(e) {
+        document.getElementById('mergeFileCount').textContent = e.target.files.length > 0 ? `${e.target.files.length} files selected` : '';
+    });
+    
+    document.getElementById('splitFile').addEventListener('change', function(e) {
+        document.getElementById('splitFileName').textContent = e.target.files.length > 0 ? e.target.files[0].name : '';
+    });
+    
+    document.getElementById('imgToPdfFiles').addEventListener('change', function(e) {
+        document.getElementById('imgToPdfCount').textContent = e.target.files.length > 0 ? `${e.target.files.length} images selected` : '';
+    });
+
+    // Helper for forms
+    async function handleFormSubmit(formId, url, loaderId, statusId) {
+        const form = document.getElementById(formId);
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const loader = document.getElementById(loaderId);
+            const status = document.getElementById(statusId);
+            
+            loader.classList.remove('hidden');
+            status.classList.add('hidden');
+            status.className = 'text-sm text-center mt-2'; // Reset classes
+            
+            const formData = new FormData(form);
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = downloadUrl;
+                    const contentDisposition = response.headers.get('Content-Disposition');
+                    let filename = 'download.pdf';
+                    if (contentDisposition) {
+                        const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+                        if (filenameMatch && filenameMatch.length === 2) filename = filenameMatch[1];
+                    }
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    
+                    status.textContent = "Success! File downloaded.";
+                    status.classList.add('text-green-400');
+                    form.reset();
+                    // clear texts
+                    const textElems = form.querySelectorAll('p[id$="Count"], p[id$="Name"]');
+                    textElems.forEach(el => el.textContent = '');
+                } else {
+                    const error = await response.json();
+                    status.textContent = error.error || "An error occurred.";
+                    status.classList.add('text-red-400');
+                }
+            } catch (error) {
+                status.textContent = "Network error occurred.";
+                status.classList.add('text-red-400');
+            } finally {
+                loader.classList.add('hidden');
+                status.classList.remove('hidden');
+            }
+        });
+    }
+
+    handleFormSubmit('mergeForm', '/api/merge_pdfs', 'mergeLoader', 'mergeStatus');
+    handleFormSubmit('splitForm', '/api/split_pdf', 'splitLoader', 'splitStatus');
+    handleFormSubmit('imgToPdfForm', '/api/images-to-pdf', 'imgPdfLoader', 'imgPdfStatus');
+</script>
+{% endblock %}

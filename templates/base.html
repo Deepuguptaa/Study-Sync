@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SyncSphere | Professional File Management Platform{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#151e2e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script>
+        // Check for saved theme preference
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --accent: #6d28d9;
+            --highlight: #8b5cf6;
+        }
+        
+        .logo-font {
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+        }
+        
+        .dark .glass-card {
+            background: rgba(15, 15, 19, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(139, 92, 246, 0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .dark .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #8b5cf6, #6366f1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+        
+        .hover-scale:hover {
+            transform: translateY(-5px);
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--highlight);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .dropdown-content {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .dropdown:hover .dropdown-content {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .tool-btn {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tool-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .tool-btn:hover::before {
+            left: 100%;
+        }
+        
+        /* Spinner */
+        .loader {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-left-color: var(--highlight);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body class="antialiased bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 transition-colors duration-300 flex flex-col min-h-screen overflow-x-hidden" style="font-family: 'Montserrat', sans-serif;">
+    <!-- Navbar -->
+    <nav class="glass-card fixed w-full z-50 py-4 px-6 shadow-xl dark:shadow-none transition-colors duration-300">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-10">
+                <a href="/" class="logo-font text-2xl font-bold gradient-text">SyncSphere</a>
+                
+                <div class="hidden lg:flex space-x-8">
+                    <div class="dropdown relative">
+                        <a href="/tools/pdf" class="nav-link text-slate-800 dark:text-slate-200 hover:text-purple-600 font-medium flex items-center space-x-1 relative">
+                            <span>PDF Tools</span>
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </a>
+                        <div class="dropdown-content absolute left-0 mt-2 w-48 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-xl py-2 z-50">
+                            <a href="/tools/pdf" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-purple-600 transition-colors">Merge PDFs</a>
+                            <a href="/tools/pdf" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-purple-600 transition-colors">Split PDFs</a>
+                            <a href="/tools/pdf" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-purple-600 transition-colors">Images to PDF</a>
+                        </div>
+                    </div>
+                    
+                    <div class="dropdown relative">
+                        <a href="/tools/image/convert" class="nav-link text-slate-800 dark:text-slate-200 hover:text-purple-600 font-medium flex items-center space-x-1 relative">
+                            <span>Image Tools</span>
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </a>
+                        <div class="dropdown-content absolute left-0 mt-2 w-48 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-xl py-2 z-50">
+                            <a href="/tools/image/remove_bg" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-purple-600 transition-colors">Remove Background</a>
+                            <a href="/tools/image/resize" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-purple-600 transition-colors">Resize Image</a>
+                            <a href="/tools/image/convert" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-purple-600 transition-colors">Convert Format</a>
+                        </div>
+                    </div>
+                    
+                    <div class="dropdown relative">
+                        <a href="/tools/ai" class="nav-link text-slate-800 dark:text-slate-200 hover:text-purple-600 font-medium flex items-center space-x-1 relative">
+                            <span>AI Tools</span>
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </a>
+                        <div class="dropdown-content absolute left-0 mt-2 w-48 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-xl py-2 z-50">
+                            <a href="/tools/ai" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-purple-600 transition-colors">AI Writer</a>
+                            <a href="/tools/ai" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-purple-600 transition-colors">Grammar Checker</a>
+                            <a href="/tools/ai" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-purple-600 transition-colors">Notes Taker</a>
+                        </div>
+                    </div>
+                    
+                    <div class="dropdown relative">
+                        <a href="/tools/video" class="nav-link text-slate-800 dark:text-slate-200 hover:text-purple-600 font-medium flex items-center space-x-1 relative">
+                            <span>Video Tools</span>
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </a>
+                        <div class="dropdown-content absolute left-0 mt-2 w-48 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl shadow-xl py-2 z-50">
+                            <a href="/tools/video/merge" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-purple-600 transition-colors">Merge Video</a>
+                            <a href="/tools/video/trim" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-purple-600 transition-colors">Trim Video</a>
+                            <a href="/tools/video/extract_audio" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-purple-600 transition-colors">Extract Audio</a>
+                            <a href="/tools/video/remove_audio" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-purple-600 transition-colors">Remove Audio</a>
+                            <a href="/tools/video/resize" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-purple-600 transition-colors">Resize Video</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-2 md:space-x-4">
+                <button id="theme-toggle" type="button" class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none rounded-lg text-sm p-2.5 transition-colors duration-300">
+                    <i id="theme-toggle-dark-icon" class="hidden fas fa-moon text-xl"></i>
+                    <i id="theme-toggle-light-icon" class="hidden fas fa-sun text-xl"></i>
+                </button>
+                <!-- Auth Buttons: Show when NOT logged in -->
+                <div id="authButtons" class="flex items-center space-x-2 md:space-x-4">
+                    <button onclick="openModal('signInModal')" class="px-3 py-1.5 md:px-6 md:py-2 rounded-full bg-transparent border border-purple-500 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-all duration-300 font-medium text-sm md:text-base">
+                        Sign In
+                    </button>
+                    <button onclick="openModal('signUpModal')" class="px-3 py-1.5 md:px-6 md:py-2 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-purple-500/20 font-medium text-sm md:text-base">
+                        Sign Up
+                    </button>
+                </div>
+                <!-- User Menu: Show when logged in -->
+                <div id="userMenu" class="hidden items-center space-x-3">
+                    <span id="navUserName" class="text-sm font-semibold text-purple-600 dark:text-purple-400"></span>
+                    <button onclick="logoutUser()" class="px-3 py-1.5 md:px-5 md:py-2 rounded-full bg-transparent border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:border-red-400 hover:text-red-500 transition-all duration-300 font-medium text-sm">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                    </button>
+                </div>
+                <button id="mobile-menu-btn" class="lg:hidden text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none rounded-lg p-2.5 transition-colors duration-300">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu (Hidden by default) -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 shadow-xl absolute w-full top-full left-0 z-40 max-h-[85vh] overflow-y-auto transition-colors duration-300">
+            <div class="flex flex-col px-6 py-6 space-y-6">
+                <div>
+                    <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">PDF Tools</p>
+                    <div class="flex flex-col space-y-3 pl-3 border-l-2 border-slate-100 dark:border-slate-800">
+                        <a href="/tools/pdf" class="text-slate-700 dark:text-slate-300 hover:text-purple-600 font-medium">Merge PDFs</a>
+                        <a href="/tools/pdf" class="text-slate-700 dark:text-slate-300 hover:text-purple-600 font-medium">Split PDFs</a>
+                        <a href="/tools/pdf" class="text-slate-700 dark:text-slate-300 hover:text-purple-600 font-medium">Images to PDF</a>
+                    </div>
+                </div>
+                
+                <div>
+                    <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">Image Tools</p>
+                    <div class="flex flex-col space-y-3 pl-3 border-l-2 border-slate-100 dark:border-slate-800">
+                        <a href="/tools/image/remove_bg" class="text-slate-700 dark:text-slate-300 hover:text-purple-600 font-medium">Remove Background</a>
+                        <a href="/tools/image/resize" class="text-slate-700 dark:text-slate-300 hover:text-purple-600 font-medium">Resize Image</a>
+                        <a href="/tools/image/convert" class="text-slate-700 dark:text-slate-300 hover:text-purple-600 font-medium">Convert Format</a>
+                    </div>
+                </div>
+
+                <div>
+                    <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">AI Tools</p>
+                    <div class="flex flex-col space-y-3 pl-3 border-l-2 border-slate-100 dark:border-slate-800">
+                        <a href="/tools/ai" class="text-slate-700 dark:text-slate-300 hover:text-purple-600 font-medium">AI Writer</a>
+                        <a href="/tools/ai" class="text-slate-700 dark:text-slate-300 hover:text-purple-600 font-medium">Grammar Checker</a>
+                        <a href="/tools/ai" class="text-slate-700 dark:text-slate-300 hover:text-purple-600 font-medium">Notes Taker</a>
+                    </div>
+                </div>
+
+                <div>
+                    <p class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">Video Tools</p>
+                    <div class="flex flex-col space-y-3 pl-3 border-l-2 border-slate-100 dark:border-slate-800">
+                        <a href="/tools/video/merge" class="text-slate-700 dark:text-slate-300 hover:text-purple-600 font-medium">Merge Video</a>
+                        <a href="/tools/video/trim" class="text-slate-700 dark:text-slate-300 hover:text-purple-600 font-medium">Trim Video</a>
+                        <a href="/tools/video/extract_audio" class="text-slate-700 dark:text-slate-300 hover:text-purple-600 font-medium">Extract Audio</a>
+                        <a href="/tools/video/remove_audio" class="text-slate-700 dark:text-slate-300 hover:text-purple-600 font-medium">Remove Audio</a>
+                        <a href="/tools/video/resize" class="text-slate-700 dark:text-slate-300 hover:text-purple-600 font-medium">Resize Video</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow pt-24 pb-12 px-4 max-w-7xl mx-auto w-full relative z-10">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md py-16 px-4 mt-auto border-t border-slate-200 dark:border-slate-800 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
+                <div class="lg:col-span-2">
+                    <div class="flex items-center mb-6">
+                        <span class="logo-font text-2xl font-bold gradient-text">SyncSphere</span>
+                    </div>
+                    <p class="text-slate-500 dark:text-slate-400 mb-6">
+                        The professional's choice for file management, conversion, and collaboration in the cloud.
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200 mb-6">Products</h3>
+                    <ul class="space-y-3">
+                        <li><a href="/tools/pdf" class="text-slate-500 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 font-medium transition-colors">PDF Tools</a></li>
+                        <li><a href="/tools/image/convert" class="text-slate-500 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 font-medium transition-colors">Image Tools</a></li>
+                        <li><a href="/tools/video" class="text-slate-500 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 font-medium transition-colors">Video Tools</a></li>
+                        <li><a href="/tools/ai" class="text-slate-500 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 font-medium transition-colors">AI Writer</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-slate-200 dark:border-slate-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-slate-400 dark:text-slate-500 font-medium mb-4 md:mb-0">
+                    © 2026 SyncSphere. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <!-- Sign In Modal -->
+    <div id="signInModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModal('signInModal')"></div>
+        <div class="glass-panel relative z-10 w-full max-w-md p-8 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform scale-95 transition-all duration-300 max-h-[90vh] overflow-y-auto" id="signInModalContent">
+            <button onclick="closeModal('signInModal')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            <h2 class="text-3xl font-bold mb-6 text-center gradient-text">Welcome Back</h2>
+            <div id="signInError" class="hidden bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 rounded-xl px-4 py-3 text-sm font-medium"></div>
+            <form id="signInForm" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Email Address</label>
+                    <input id="loginEmail" type="email" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-900/30 transition-all shadow-sm" placeholder="you@example.com" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Password</label>
+                    <input id="loginPassword" type="password" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-900/30 transition-all shadow-sm" placeholder="••••••••" required>
+                </div>
+                <div class="flex justify-between items-center text-sm">
+                    <label class="flex items-center text-slate-600 dark:text-slate-400 cursor-pointer font-medium">
+                        <input type="checkbox" class="mr-2 rounded border-slate-300 dark:border-slate-600 text-purple-600 focus:ring-purple-500 bg-white dark:bg-slate-800"> Remember me
+                    </label>
+                    <a href="#" class="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-semibold">Forgot Password?</a>
+                </div>
+                <button id="signInBtn" type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold shadow-[0_10px_20px_rgba(139,92,246,0.3)] hover:shadow-[0_10px_25px_rgba(139,92,246,0.4)] hover:-translate-y-0.5 transition-all duration-300">
+                    Sign In
+                </button>
+            </form>
+            <p class="text-center mt-6 text-slate-500 font-medium text-sm">
+                Don't have an account? <a href="#" onclick="closeModal('signInModal'); openModal('signUpModal');" class="text-purple-600 hover:text-purple-700 font-bold">Sign Up</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Sign Up Modal -->
+    <div id="signUpModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeModal('signUpModal')"></div>
+        <div class="glass-panel relative z-10 w-full max-w-md p-8 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform scale-95 transition-all duration-300 max-h-[90vh] overflow-y-auto" id="signUpModalContent">
+            <button onclick="closeModal('signUpModal')" class="absolute top-5 right-5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            <h2 class="text-3xl font-bold mb-6 text-center gradient-text">Create Account</h2>
+            <div id="signUpError" class="hidden bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 rounded-xl px-4 py-3 text-sm font-medium"></div>
+            <form id="signUpForm" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Full Name</label>
+                    <input id="signupFullName" type="text" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900/30 transition-all shadow-sm" placeholder="John Doe" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Email Address</label>
+                    <input id="signupEmail" type="email" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900/30 transition-all shadow-sm" placeholder="you@example.com" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Password</label>
+                    <input id="signupPassword" type="password" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900/30 transition-all shadow-sm" placeholder="••••••••" required>
+                </div>
+                <button id="signUpBtn" type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold shadow-[0_10px_20px_rgba(99,102,241,0.3)] hover:shadow-[0_10px_25px_rgba(99,102,241,0.4)] hover:-translate-y-0.5 transition-all duration-300">
+                    Sign Up
+                </button>
+            </form>
+            <p class="text-center mt-6 text-slate-500 font-medium text-sm">
+                Already have an account? <a href="#" onclick="closeModal('signUpModal'); openModal('signInModal');" class="text-indigo-600 hover:text-indigo-700 font-bold">Sign In</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            const content = document.getElementById(modalId + 'Content');
+            modal.classList.remove('hidden');
+            // Small delay to allow display:block to apply before animating opacity/transform
+            setTimeout(() => {
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            const content = document.getElementById(modalId + 'Content');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300); // match duration-300
+        }
+
+        // Theme Toggle Logic
+        var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        var themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            themeToggleLightIcon.classList.remove('hidden');
+        } else {
+            themeToggleDarkIcon.classList.remove('hidden');
+        }
+
+        var themeToggleBtn = document.getElementById('theme-toggle');
+        themeToggleBtn.addEventListener('click', function() {
+            themeToggleDarkIcon.classList.toggle('hidden');
+            themeToggleLightIcon.classList.toggle('hidden');
+
+            if (localStorage.getItem('color-theme')) {
+                if (localStorage.getItem('color-theme') === 'light') {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                }
+            } else {
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                }
+            }
+        });
+
+        // Mobile Menu Logic
+        var mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        var mobileMenu = document.getElementById('mobile-menu');
+        
+        if(mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+        
+        function closeMobileMenu() {
+            if(mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.add('hidden');
+            }
+        }
+    </script>
+    <script>
+    // ═══════════════════════════════════════════════
+    //   SyncSphere Auth System
+    // ═══════════════════════════════════════════════
+
+    // ── Token & User Helpers ──────────────────────
+    function getToken() { return localStorage.getItem('ss_token'); }
+    function getUser()  { return JSON.parse(localStorage.getItem('ss_user') || 'null'); }
+    function saveAuth(token, user) {
+        localStorage.setItem('ss_token', token);
+        localStorage.setItem('ss_user', JSON.stringify(user));
+    }
+    function clearAuth() {
+        localStorage.removeItem('ss_token');
+        localStorage.removeItem('ss_user');
+    }
+
+    // ── Update Navbar based on login state ────────
+    function updateNavbar() {
+        const user = getUser();
+        const authButtons = document.getElementById('authButtons');
+        const userMenu = document.getElementById('userMenu');
+        const navUserName = document.getElementById('navUserName');
+
+        if (user && getToken()) {
+            authButtons.classList.add('hidden');
+            userMenu.classList.remove('hidden');
+            userMenu.classList.add('flex');
+            navUserName.textContent = '👋 ' + user.fullName.split(' ')[0];
+        } else {
+            authButtons.classList.remove('hidden');
+            userMenu.classList.add('hidden');
+            userMenu.classList.remove('flex');
+        }
+    }
+
+    // ── Toast Notification ────────────────────────
+    function showToast(message, type = 'success') {
+        const old = document.getElementById('ss-toast');
+        if (old) old.remove();
+        const toast = document.createElement('div');
+        toast.id = 'ss-toast';
+        toast.style.cssText = `
+            position:fixed; top:20px; right:20px; z-index:9999;
+            padding:14px 22px; border-radius:12px; font-size:15px;
+            font-weight:600; color:white; max-width:320px;
+            box-shadow:0 8px 24px rgba(0,0,0,0.25);
+            background:${type === 'success' ? 'linear-gradient(135deg,#6d28d9,#4f46e5)' : '#dc2626'};
+            animation: ssSlide 0.3s ease;
+        `;
+        toast.textContent = message;
+        const style = document.createElement('style');
+        style.textContent = '@keyframes ssSlide{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}';
+        document.head.appendChild(style);
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 4000);
+    }
+
+    // ── Show/hide error in modal ──────────────────
+    function showModalError(id, msg) {
+        const el = document.getElementById(id);
+        if (el) { el.textContent = msg; el.classList.remove('hidden'); }
+    }
+    function hideModalError(id) {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    }
+
+    // ── SIGN UP ───────────────────────────────────
+    document.getElementById('signUpForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        hideModalError('signUpError');
+        const btn = document.getElementById('signUpBtn');
+        const fullName = document.getElementById('signupFullName').value.trim();
+        const email    = document.getElementById('signupEmail').value.trim();
+        const password = document.getElementById('signupPassword').value;
+
+        btn.disabled = true;
+        btn.textContent = 'Creating Account...';
+
+        try {
+            const res = await fetch('/api/auth/signup', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({fullName, email, password})
+            });
+            const data = await res.json();
+            if (data.success) {
+                saveAuth(data.token, data.user);
+                closeModal('signUpModal');
+                updateNavbar();
+                showToast(data.message);
+                this.reset();
+            } else {
+                showModalError('signUpError', data.message);
+            }
+        } catch (err) {
+            showModalError('signUpError', 'Server se connect nahi ho pa raha. Flask server chalu hai?');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Sign Up';
+        }
+    });
+
+    // ── SIGN IN ───────────────────────────────────
+    document.getElementById('signInForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        hideModalError('signInError');
+        const btn = document.getElementById('signInBtn');
+        const email    = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+
+        btn.disabled = true;
+        btn.textContent = 'Signing In...';
+
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email, password})
+            });
+            const data = await res.json();
+            if (data.success) {
+                saveAuth(data.token, data.user);
+                closeModal('signInModal');
+                updateNavbar();
+                showToast(data.message);
+                this.reset();
+            } else {
+                showModalError('signInError', data.message);
+            }
+        } catch (err) {
+            showModalError('signInError', 'Server se connect nahi ho pa raha. Flask server chalu hai?');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Sign In';
+        }
+    });
+
+    // ── LOGOUT ────────────────────────────────────
+    function logoutUser() {
+        clearAuth();
+        updateNavbar();
+        showToast('Successfully logout ho gaye!');
+    }
+
+    // ── Init on page load ─────────────────────────
+    document.addEventListener('DOMContentLoaded', updateNavbar);
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

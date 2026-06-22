@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}SyncSphere | AI Tools{% endblock %}
+
+{% block content %}
+<div class="text-center mb-12">
+    <h1 class="text-4xl md:text-5xl font-bold mb-4 gradient-text">AI Writing Assistant</h1>
+    <p class="text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-medium transition-colors duration-300">Generate text, perfect your grammar, and summarize content using advanced AI.</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- AI Writer Section -->
+    <div class="glass-panel rounded-2xl p-8 hover-scale transition-all duration-300">
+        <div class="flex items-center mb-6">
+            <div class="w-12 h-12 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mr-4 border border-blue-200 dark:border-blue-800/50 transition-colors duration-300">
+                <i class="fas fa-robot text-2xl text-blue-600 dark:text-blue-400"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-white transition-colors duration-300">AI Writer</h2>
+        </div>
+        <p class="text-slate-500 dark:text-slate-400 mb-6 text-sm font-medium transition-colors duration-300">Enter a prompt or Wikipedia topic to generate text.</p>
+        
+        <div class="space-y-4">
+            <textarea id="aiInput" class="w-full bg-slate-50 dark:bg-gray-800 border border-slate-300 dark:border-gray-600 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-900/50 h-32 resize-none shadow-sm transition-colors duration-300" placeholder="E.g., Tell me about quantum computing..."></textarea>
+            
+            <button onclick="runAI('writer')" class="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-lg hover:shadow-blue-500/25 tool-btn flex justify-center items-center">
+                <span>Generate Text</span>
+                <div class="loader ml-3 hidden" id="writerLoader"></div>
+            </button>
+            <div id="writerResult" class="mt-4 p-4 bg-slate-100 dark:bg-gray-800/50 rounded-xl border border-slate-200 dark:border-gray-700 text-sm text-slate-700 dark:text-gray-300 hidden whitespace-pre-wrap max-h-64 overflow-y-auto font-medium transition-colors duration-300"></div>
+        </div>
+    </div>
+
+    <!-- Grammar Checker Section -->
+    <div class="glass-panel rounded-2xl p-8 hover-scale transition-all duration-300">
+        <div class="flex items-center mb-6">
+            <div class="w-12 h-12 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center mr-4 border border-green-200 dark:border-green-800/50 transition-colors duration-300">
+                <i class="fas fa-spell-check text-2xl text-green-600 dark:text-green-400"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-white transition-colors duration-300">Grammar Check</h2>
+        </div>
+        <p class="text-slate-500 dark:text-slate-400 mb-6 text-sm font-medium transition-colors duration-300">Paste your text to check and correct grammar instantly.</p>
+        
+        <div class="space-y-4">
+            <textarea id="grammarInput" class="w-full bg-slate-50 dark:bg-gray-800 border border-slate-300 dark:border-gray-600 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-900/50 h-32 resize-none shadow-sm transition-colors duration-300" placeholder="Paste your text here..."></textarea>
+            
+            <button onclick="runAI('grammar')" class="w-full py-3 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold shadow-lg hover:shadow-green-500/25 tool-btn flex justify-center items-center">
+                <span>Check Grammar</span>
+                <div class="loader ml-3 hidden" id="grammarLoader"></div>
+            </button>
+            <div id="grammarResult" class="mt-4 p-4 bg-slate-100 dark:bg-gray-800/50 rounded-xl border border-slate-200 dark:border-gray-700 text-sm text-slate-700 dark:text-gray-300 hidden whitespace-pre-wrap max-h-64 overflow-y-auto font-medium transition-colors duration-300"></div>
+        </div>
+    </div>
+
+    <!-- Notes Taker Section -->
+    <div class="glass-panel rounded-2xl p-8 hover-scale transition-all duration-300">
+        <div class="flex items-center mb-6">
+            <div class="w-12 h-12 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mr-4 border border-amber-200 dark:border-amber-800/50 transition-colors duration-300">
+                <i class="fas fa-list-ul text-2xl text-amber-600 dark:text-amber-400"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 dark:text-white transition-colors duration-300">Notes Taker</h2>
+        </div>
+        <p class="text-slate-500 dark:text-slate-400 mb-6 text-sm font-medium transition-colors duration-300">Paste a long article to extract key bullet points.</p>
+        
+        <div class="space-y-4">
+            <textarea id="notesInput" class="w-full bg-slate-50 dark:bg-gray-800 border border-slate-300 dark:border-gray-600 rounded-xl px-4 py-3 text-slate-800 dark:text-white focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 dark:focus:ring-amber-900/50 h-32 resize-none shadow-sm transition-colors duration-300" placeholder="Paste long text here to summarize..."></textarea>
+            
+            <button onclick="runAI('notes')" class="w-full py-3 rounded-xl bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-semibold shadow-lg hover:shadow-yellow-500/25 tool-btn flex justify-center items-center">
+                <span>Extract Notes</span>
+                <div class="loader ml-3 hidden" id="notesLoader"></div>
+            </button>
+            <div id="notesResult" class="mt-4 p-4 bg-slate-100 dark:bg-gray-800/50 rounded-xl border border-slate-200 dark:border-gray-700 text-sm text-slate-700 dark:text-gray-300 hidden whitespace-pre-wrap max-h-64 overflow-y-auto font-medium transition-colors duration-300"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    async function runAI(type) {
+        let inputId, loaderId, resultId, endpoint;
+        
+        if (type === 'writer') {
+            inputId = 'aiInput'; loaderId = 'writerLoader'; resultId = 'writerResult'; endpoint = '/api/ai_writer';
+        } else if (type === 'grammar') {
+            inputId = 'grammarInput'; loaderId = 'grammarLoader'; resultId = 'grammarResult'; endpoint = '/api/grammar_check';
+        } else if (type === 'notes') {
+            inputId = 'notesInput'; loaderId = 'notesLoader'; resultId = 'notesResult'; endpoint = '/api/notes_taker';
+        }
+
+        const text = document.getElementById(inputId).value;
+        const loader = document.getElementById(loaderId);
+        const result = document.getElementById(resultId);
+
+        if (!text.trim()) {
+            result.textContent = "Please enter some text.";
+            result.classList.remove('hidden');
+            result.classList.add('text-red-400');
+            return;
+        }
+
+        loader.classList.remove('hidden');
+        result.classList.add('hidden');
+        result.classList.remove('text-red-400');
+
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: text })
+            });
+            
+            const data = await response.json();
+            
+            result.classList.remove('hidden');
+            
+            if (response.ok) {
+                if (type === 'writer') result.textContent = data.generated_text;
+                else if (type === 'grammar') result.textContent = data.corrected_text;
+                else if (type === 'notes') result.textContent = data.notes;
+            } else {
+                result.textContent = data.error || "An error occurred.";
+                result.classList.add('text-red-400');
+            }
+        } catch (error) {
+            result.classList.remove('hidden');
+            result.textContent = "Network error occurred.";
+            result.classList.add('text-red-400');
+        } finally {
+            loader.classList.add('hidden');
+        }
+    }
+</script>
+{% endblock %}

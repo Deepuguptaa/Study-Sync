@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}SyncSphere | Merge Video{% endblock %}
+
+{% block content %}
+<div class="text-center mb-12">
+    <h1 class="text-4xl md:text-5xl font-bold mb-4 text-orange-400">Merge Video</h1>
+    <p class="text-xl text-gray-400 max-w-2xl mx-auto">Combine multiple video clips into a single seamless video file.</p>
+</div>
+
+<div class="max-w-2xl mx-auto">
+    <div class="glass-panel rounded-2xl p-8 hover-scale transition-all duration-300">
+        <form id="videoForm" class="space-y-6">
+            <div class="border-2 border-dashed border-gray-600 rounded-xl p-8 text-center hover:border-orange-500 transition-colors cursor-pointer relative overflow-hidden group">
+                <input type="file" id="videoFiles" name="videos" multiple accept="video/mp4,video/avi,video/mkv,video/quicktime" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" required>
+                <i class="fas fa-layer-group text-4xl text-gray-500 mb-3 group-hover:text-orange-400 transition-colors"></i>
+                <p class="text-md text-gray-300">Select Multiple Videos to Merge</p>
+                <p id="fileName" class="text-sm text-orange-400 mt-2 font-medium"></p>
+            </div>
+            
+            <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-orange-600 to-amber-600 text-white font-bold text-lg shadow-lg hover:shadow-orange-500/30 tool-btn flex justify-center items-center">
+                <span>Merge Videos</span>
+                <div class="loader ml-3 hidden" id="loader"></div>
+            </button>
+            
+            <p id="statusMsg" class="text-center mt-4 hidden font-medium"></p>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('videoFiles').addEventListener('change', function(e) {
+        document.getElementById('fileName').textContent = e.target.files.length > 0 ? `${e.target.files.length} videos selected` : '';
+    });
+
+    document.getElementById('videoForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const loader = document.getElementById('loader');
+        const status = document.getElementById('statusMsg');
+        
+        loader.classList.remove('hidden');
+        status.classList.add('hidden');
+        status.className = 'text-center mt-4';
+        
+        try {
+            const formData = new FormData(form);
+            const response = await fetch('/api/merge_video', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (response.ok) {
+                const blob = await response.blob();
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                
+                const contentDisposition = response.headers.get('Content-Disposition');
+                let filename = 'merged-video.mp4';
+                if (contentDisposition) {
+                    const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+                    if (filenameMatch && filenameMatch.length === 2) filename = filenameMatch[1];
+                }
+                
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                
+                status.textContent = "Success! Video downloaded.";
+                status.classList.add('text-green-400', 'block');
+                status.classList.remove('hidden');
+                
+                form.reset();
+                document.getElementById('fileName').textContent = '';
+            } else {
+                const error = await response.json();
+                status.textContent = error.error || "An error occurred.";
+                status.classList.add('text-red-400', 'block');
+                status.classList.remove('hidden');
+            }
+        } catch (error) {
+            status.textContent = "Network error occurred.";
+            status.classList.add('text-red-400', 'block');
+            status.classList.remove('hidden');
+        } finally {
+            loader.classList.add('hidden');
+        }
+    });
+</script>
+{% endblock %}

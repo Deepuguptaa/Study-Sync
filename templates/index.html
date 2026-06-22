@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block title %}SyncSphere | The Ultimate Processing Suite{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero specific overrides */
+    main {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        max-width: 100% !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+    
+    .card-3d {
+        transform-style: preserve-3d;
+        perspective: 1000px;
+    }
+    
+    .card-inner {
+        transform: rotateY(0deg);
+        transition: transform 0.8s;
+    }
+    
+    .card-3d:hover .card-inner {
+        transform: rotateY(15deg);
+    }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .floating {
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    .tool-card {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .tool-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(109, 40, 217, 0.2), transparent);
+        transition: 0.5s;
+    }
+    
+    .tool-card:hover::before {
+        left: 100%;
+    }
+
+    .video-overlay {
+        background: linear-gradient(to bottom, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.95));
+        transition: background 0.3s ease;
+    }
+    
+    .dark .video-overlay {
+        background: linear-gradient(to bottom, rgba(15, 15, 19, 0.8), rgba(15, 15, 19, 0.95));
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section with 3D Video Background -->
+<section class="relative min-h-[100svh] flex items-center justify-center overflow-hidden w-full">
+    <video autoplay loop muted playsinline class="absolute w-full h-full object-cover z-0">
+        <source src="https://assets.mixkit.co/videos/preview/mixkit-digital-animation-of-a-network-connection-41539-large.mp4" type="video/mp4">
+    </video>
+    
+    <div class="video-overlay absolute w-full h-full z-10"></div>
+    
+    <div class="relative z-20 text-center px-4 max-w-6xl mx-auto">
+        <h1 class="text-5xl md:text-7xl font-bold mb-6 logo-font text-slate-800 dark:text-white transition-colors duration-300">
+            <span class="gradient-text">SyncSphere</span> Pro
+        </h1>
+        <p class="text-xl md:text-2xl mb-10 max-w-3xl mx-auto text-slate-600 dark:text-gray-300 font-medium transition-colors duration-300">
+            The ultimate professional suite for file management, conversion, and collaboration in the cloud.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="#features" class="px-8 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-lg font-semibold hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-purple-500/30 hover-scale">
+                <i class="fas fa-rocket mr-2"></i> Get Started Free
+            </a>
+            <button class="px-8 py-4 rounded-xl bg-white dark:bg-gray-900/70 border border-slate-200 dark:border-gray-700 text-slate-800 dark:text-white text-lg font-bold hover:bg-slate-50 dark:hover:bg-gray-800/70 transition-all duration-300 hover-scale shadow-sm">
+                <i class="fas fa-play-circle mr-2 text-purple-600 dark:text-purple-400"></i> Watch Demo
+            </button>
+        </div>
+    </div>
+    
+    <div class="absolute bottom-10 left-0 right-0 flex justify-center z-20">
+        <a href="#features" class="text-slate-400 dark:text-white hover:text-purple-600 dark:hover:text-purple-400 animate-bounce transition-colors duration-300">
+            <i class="fas fa-chevron-down text-2xl"></i>
+        </a>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-20 px-4 max-w-7xl mx-auto w-full relative z-20">
+    <div class="text-center mb-16">
+        <span class="text-purple-400 font-semibold">POWERFUL FEATURES</span>
+        <h2 class="text-4xl md:text-5xl font-bold mt-4 mb-6 text-slate-800 dark:text-white transition-colors duration-300">Everything You Need in One Platform</h2>
+        <p class="text-xl text-slate-500 dark:text-gray-400 max-w-3xl mx-auto font-medium transition-colors duration-300">
+            SyncSphere combines all essential tools for professionals with enterprise-grade security and performance.
+        </p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Feature Card 1 -->
+        <div class="glass-card rounded-xl p-8 hover-scale transition-all duration-300 card-3d">
+            <div class="card-inner">
+                <div class="w-16 h-16 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-6 shadow-sm dark:shadow-none border border-purple-200 dark:border-transparent transition-colors duration-300">
+                    <i class="fas fa-file-pdf text-3xl text-purple-600 dark:text-purple-400"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-3 text-slate-800 dark:text-white transition-colors duration-300">Advanced PDF Tools</h3>
+                <p class="text-slate-600 dark:text-gray-400 mb-6 font-medium transition-colors duration-300">
+                    Merge, split, and convert to PDFs with ease. Fast and local processing.
+                </p>
+                <a href="/tools/pdf" class="text-purple-600 dark:text-purple-400 font-bold flex items-center hover:text-purple-700 dark:hover:text-purple-300 transition-colors">
+                    Explore PDF Tools
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Feature Card 2 -->
+        <div class="glass-card rounded-xl p-8 hover-scale transition-all duration-300 card-3d">
+            <div class="card-inner">
+                <div class="w-16 h-16 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mb-6 shadow-sm dark:shadow-none border border-indigo-200 dark:border-transparent transition-colors duration-300">
+                    <i class="fas fa-image text-3xl text-indigo-600 dark:text-indigo-400"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-3 text-slate-800 dark:text-white transition-colors duration-300">Image Processing</h3>
+                <p class="text-slate-600 dark:text-gray-400 mb-6 font-medium transition-colors duration-300">
+                    AI-powered background removal, image resizing, and format conversion with quality preservation.
+                </p>
+                <a href="/tools/image/convert" class="text-indigo-600 dark:text-indigo-400 font-bold flex items-center hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors">
+                    Explore Image Tools
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Feature Card 3 -->
+        <div class="glass-card rounded-xl p-8 hover-scale transition-all duration-300 card-3d">
+            <div class="card-inner">
+                <div class="w-16 h-16 rounded-lg bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center mb-6 shadow-sm dark:shadow-none border border-pink-200 dark:border-transparent transition-colors duration-300">
+                    <i class="fas fa-video text-3xl text-pink-600 dark:text-pink-400"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-3 text-slate-800 dark:text-white transition-colors duration-300">Video Editing</h3>
+                <p class="text-slate-600 dark:text-gray-400 mb-6 font-medium transition-colors duration-300">
+                    Trim, mute, merge videos and extract audio without quality loss. Supports up to 4K resolution.
+                </p>
+                <a href="/tools/video" class="text-pink-600 dark:text-pink-400 font-bold flex items-center hover:text-pink-700 dark:hover:text-pink-300 transition-colors">
+                    Explore Video Tools
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Feature Card 4 -->
+        <div class="glass-card rounded-xl p-8 hover-scale transition-all duration-300 card-3d">
+            <div class="card-inner">
+                <div class="w-16 h-16 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-6 shadow-sm dark:shadow-none border border-blue-200 dark:border-transparent transition-colors duration-300">
+                    <i class="fas fa-robot text-3xl text-blue-600 dark:text-blue-400"></i>
+                </div>
+                <h3 class="text-2xl font-bold mb-3 text-slate-800 dark:text-white transition-colors duration-300">AI Writing Assistant</h3>
+                <p class="text-slate-600 dark:text-gray-400 mb-6 font-medium transition-colors duration-300">
+                    Generate professional content, check grammar, and extract bullet-points with advanced AI.
+                </p>
+                <a href="/tools/ai" class="text-blue-600 dark:text-blue-400 font-bold flex items-center hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+                    Explore AI Tools
+                    <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="glass-card rounded-xl p-8 hover-scale transition-all duration-300 card-3d lg:col-span-2">
+            <div class="card-inner flex flex-col md:flex-row items-center justify-between">
+                <div>
+                    <h3 class="text-3xl font-bold mb-3 gradient-text">Enterprise Grade Security</h3>
+                    <p class="text-slate-600 dark:text-gray-400 mb-6 max-w-lg font-medium transition-colors duration-300">
+                        All your files are processed securely. Temporary files are immediately deleted after processing to ensure your data remains private and secure.
+                    </p>
+                </div>
+                <i class="fas fa-shield-alt text-8xl text-indigo-500 opacity-20 dark:opacity-50"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About the Developer Section -->
+<section id="about" class="py-20 px-4 max-w-5xl mx-auto w-full relative z-20">
+    <div class="glass-panel rounded-3xl p-10 md:p-14 relative overflow-hidden">
+        <!-- Background accents -->
+        <div class="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 rounded-full bg-purple-600/20 blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 rounded-full bg-indigo-600/20 blur-3xl"></div>
+        
+        <div class="flex flex-col md:flex-row items-center gap-12 relative z-10">
+            <!-- Developer Image -->
+            <div class="flex-shrink-0 relative group mt-4 md:mt-0">
+                <div class="w-52 h-52 md:w-64 md:h-64 rounded-full p-2 bg-gradient-to-tr from-purple-500 via-indigo-500 to-pink-500 shadow-[0_0_40px_rgba(139,92,246,0.2)] dark:shadow-[0_0_40px_rgba(139,92,246,0.4)] transition-all duration-500 group-hover:shadow-[0_0_60px_rgba(139,92,246,0.4)] dark:group-hover:shadow-[0_0_60px_rgba(139,92,246,0.7)] animate-pulse-slow">
+                    <div class="w-full h-full rounded-full overflow-hidden border-4 border-white dark:border-gray-900 relative transition-colors duration-300">
+                        <!-- The image reference here. Ensure you save the provided image to static/Deepu.jpg -->
+                        <img src="/static/Deepu.jpg" alt="Deepu" class="w-full h-full object-cover">
+                    </div>
+                </div>
+                <div class="absolute bottom-2 right-4 bg-white dark:bg-gray-900 rounded-full w-14 h-14 flex items-center justify-center border-4 border-white dark:border-gray-900 shadow-xl transform transition-all duration-500 group-hover:rotate-12">
+                    <i class="fas fa-code text-2xl gradient-text"></i>
+                </div>
+            </div>
+            
+            <!-- Developer Info -->
+            <div class="text-center md:text-left">
+                <span class="text-purple-600 dark:text-purple-400 font-bold tracking-wider text-sm uppercase transition-colors duration-300">About the Developer</span>
+                <h2 class="text-3xl md:text-4xl font-bold mt-2 mb-4 text-slate-800 dark:text-white transition-colors duration-300">Developed By <span class="gradient-text">Deepu Kumar Gupta</span></h2>
+                <p class="text-slate-600 dark:text-gray-400 text-lg mb-6 leading-relaxed font-medium transition-colors duration-300">
+                    A passionate developer focused on creating intuitive, powerful tools that simplify digital workflows. SyncSphere was built with the vision of providing enterprise-grade utility in a beautiful, accessible package.
+                </p>
+                
+
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            if (targetId === '#') return;
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                window.scrollTo({
+                    top: targetElement.offsetTop - 80,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}
