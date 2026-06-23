@@ -2,16 +2,12 @@ flask
 flask-cors
 PyPDF2
 fpdf
-language-tool-python
 sumy
-transformers
 nltk
-ffmpeg-python
 wikipedia-api
 Pillow
 rembg
 werkzeug
-torch
 gunicorn
 pymongo
 PyJWT

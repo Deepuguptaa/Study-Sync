@@ -18,10 +18,10 @@ from PyPDF2 import PdfMerger, PdfReader, PdfWriter
 from fpdf import FPDF
 
 # AI imports
-import language_tool_python
+# language_tool_python disabled
 from sumy.parsers.plaintext import PlaintextParser
 from sumy.nlp.tokenizers import Tokenizer
-from transformers import pipeline
+# transformers disabled on free plan
 import wikipediaapi
 from sumy.summarizers.lex_rank import LexRankSummarizer
 import nltk
@@ -67,13 +67,13 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 # Initialize AI components
 try:
-    ai_writer = pipeline("text-generation", model="EleutherAI/gpt-neo-125M")
+    ai_writer = None  # disabled on free plan
 except Exception as e:
     logging.warning(f"Could not load AI writer model: {e}")
     ai_writer = None
 
 try:
-    tool = language_tool_python.LanguageToolPublicAPI("en-US")
+    tool = None  # disabled
 except Exception as e:
     logging.warning(f"Could not load LanguageTool: {e}")
     tool = None
