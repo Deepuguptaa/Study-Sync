@@ -10,3 +10,4 @@ werkzeug
 gunicorn
 pymongo
 PyJWT
+ffmpeg-python
