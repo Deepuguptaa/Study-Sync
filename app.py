@@ -28,7 +28,7 @@ import nltk
 
 # Image imports
 from PIL import Image
-from rembg import remove
+# from rembg import remove  # disabled on free plan
 
 # Video imports
 import ffmpeg
@@ -458,7 +458,7 @@ def remove_bg():
         return jsonify({"error": "Invalid image format"}), 400
     try:
         input_image = Image.open(io.BytesIO(file.read()))
-        output_image = remove(input_image)
+        return jsonify({"error": "Background removal is not available on free plan. Run locally."}), 503
         output_bytes = io.BytesIO()
         output_image.save(output_bytes, format="PNG")
         output_bytes.seek(0)

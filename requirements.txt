@@ -6,7 +6,6 @@ sumy
 nltk
 wikipedia-api
 Pillow
-rembg[cpu]
 werkzeug
 gunicorn
 pymongo
